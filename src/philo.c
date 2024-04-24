@@ -65,6 +65,7 @@ int	main(int argc, char *argv[])
 	t_data infos;
 	int i;
 	struct timeval start_time;
+
 	gettimeofday(&start_time, NULL);
 	if (check_args(argc, argv))
 		return (1);
