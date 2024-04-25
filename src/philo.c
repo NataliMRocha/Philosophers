@@ -10,7 +10,7 @@ int	pthread_create(pthread_t *thread, const pthread_attr_t *attr,
 
 void	*thread_function(void *arg)
 {
-	t_data *data;
+	t_data	*data;
 
 	data = (t_data *)arg;
 	printf("criei a thread philo n:%d\n", data->philos);
@@ -56,17 +56,25 @@ void	init(t_data *infos, char **argv, int argc)
 	infos->time_to_sleep = ft_atoi(argv[4]);
 	if (argc == 6)
 		infos->must_eat = ft_atoi(argv[5]);
-	//save_adress(infos);
+	// save_adress(infos);
 }
 
+long	currentMillis(void)
+{
+	struct timeval	tp;
+
+	gettimeofday(&tp, NULL);
+	return (tp.tv_sec * 1000 + tp.tv_usec / 1000);
+}
 
 int	main(int argc, char *argv[])
 {
-	t_data infos;
-	int i;
-	struct timeval start_time;
+	t_data			infos;
+	int				i;
+	struct timeval	t1;
+	struct timeval	t2;
+	long			elapsedTime;
 
-	gettimeofday(&start_time, NULL);
 	if (check_args(argc, argv))
 		return (1);
 	init(&infos, argv, argc);
@@ -77,9 +85,12 @@ int	main(int argc, char *argv[])
 		perror("pthread_create");
 		i--;
 	}
+	gettimeofday(&t1, NULL);
 	pthread_join(infos.tid, NULL);
+	gettimeofday(&t2, NULL);
+	elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000 + (t2.tv_usec - t1.tv_usec)
+		/ 1000;
+	printf("Tempo decorrido: %ld ms.\n", elapsedTime);
 	
-	printf("O programa foi iniciado em: %ld segundos e %ld microssegundos\n",
-			start_time.tv_sec, start_time.tv_usec);
 	return (0);
 }
