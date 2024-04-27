@@ -6,7 +6,7 @@
 /*   By: namoreir <namoreir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/24 15:16:35 by namoreir          #+#    #+#             */
-/*   Updated: 2024/04/26 16:44:39 by namoreir         ###   ########.fr       */
+/*   Updated: 2024/04/27 17:58:09 by namoreir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,35 @@
 # include "./libft/libft.h"
 # include <pthread.h>
 # include <stdio.h>
+# include <stdlib.h>
 # include <unistd.h>
 # include <stdbool.h>
 # include <limits.h>
 # include <sys/time.h>
+# include <errno.h>
 
+# ifndef PHILO_MAX
+#  define PHILO_MAX 200 
+# endif
+
+// COLORS
+/* 
+\033[ starts the escape sequence.
+31, 32, 33, 34, 35, 36, 37 are the color codes for red, green, yellow, blue, magenta, cyan, and white respectively.
+m marks the end of the color sequence.
+\033[0m resets the text style back to default.
+*/
+
+# define RST "\033[0m"
+# define RED "\033[0;31m"
+# define G "\033[0;32m"
+# define Y "\033[0;33m"
+# define B "\033[0;34m"
+# define M "\033[0;35m"
+# define C "\033[0;36m"
+# define W "\033[0;37m"
+
+typedef pthread_mutex_t	t_mtx;
 typedef struct s_table	t_table;
 // FORK
 typedef struct s_fork
@@ -37,24 +61,74 @@ typedef struct s_philo
 	long		meals_counter;
 	bool		full;
 	long		last_meal_time;
-	t_fork *left_fork;
-	t_fork *right_fork;
-	t_table *table;
+	t_fork		*left_fork;
+	t_fork		*right_fork;
+	t_mtx		philo_mutex;
+	t_table		*table;
 }	t_philo;
 
 // TABLE
 typedef struct s_table
 {
-	t_philo *philos;
-	t_fork	*forks;
-	long	philos;
-	long	time_to_die;
-	long	time_to_eat;
-	long	time_to_sleep;
-	long	must_eat;
-	long	start_simulation;
-	bool	end_simulation;
+	t_philo 	*philos;
+	t_fork		*forks;
+	long		nb_philos;
+	long		time_to_die;
+	long		time_to_eat;
+	long		time_to_sleep;
+	long		must_eat;
+	long		start_simulation;
+	bool		end_simulation;
+	bool		all_thr_ready;
+	long		threads_running_nbr;
+	pthread_t	monitor;
+	t_mtx		table_mutex;
+	t_mtx		write_mutex;
 	
 }	t_table;
+
+// MUTEXES
+typedef enum e_opcode{
+	LOCK,
+	UNLOCK,
+	INIT,
+	JOIN,
+	DESTROY,
+	CREATE,
+	DETACH,
+	
+}	t_opcode;
+
+// PHILO STATUS
+typedef enum e_status
+{
+	EATING,
+	SLEEPING,
+	THINKING,
+	TAKE_FIRST_FORK,
+	TAKE_SECOND_FORK,
+	DIED,
+}			t_philo_status;
+
+// FUNCTIONS
+
+void		parsing(t_table *table, char **argv, int argc);
+int			check_args(int argc, char **argv);
+int			validation(char *argv);
+int			print_error(char *msg);
+void		mutex_handle(t_mtx *mutex, t_opcode op);
+static void	handle_error_mutex(int status, t_opcode op);
+static void	handle_thread_error(int status, t_opcode op);
+void		thread_handle(pthread_t *thread, void *(*foo)(void *),
+		void *data, t_opcode op);
+void		init_table(t_table *table);
+static void	init_philo(t_table *table);
+static void	forks_distribution(t_philo *philo, t_fork *forks,
+		int philo_pos);
+bool	end_simulation(t_table *table);
+void	set_long(t_mtx *mutex, long *dest, long value);
+long	get_long(t_mtx *mutex, long *value);
+bool	get_bool(t_mtx *mutex, bool *value);
+void	set_bool(t_mtx	*mutex, bool *dest, bool value);
 
 #endif

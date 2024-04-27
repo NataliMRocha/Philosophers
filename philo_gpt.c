@@ -14,6 +14,7 @@ typedef struct
 	int philosopher_id;            // Philosopher ID
 	pthread_mutex_t *left_fork;    // Left fork mutex
 	pthread_mutex_t *right_fork;   // Right fork mutex
+	pthread_mutex_t *dead;
 	int time_to_die;               // Time to die
 	int time_to_eat;               // Time to eat
 	int time_to_sleep;             // Time to sleep
@@ -40,7 +41,6 @@ long long	current_timestamp_ms(void)
 void	print_with_timestamp(int philosopher_id, char *message)
 {
 	long long	timestamp;
-	long long	timestamp;
 
 	if (!philosopher_died)
 	{
@@ -55,36 +55,47 @@ void	print_with_timestamp(int philosopher_id, char *message)
 		pthread_mutex_lock(&print_mutex);
 		printf("%lld %d %s\n", timestamp, philosopher_id, message);
 		pthread_mutex_unlock(&print_mutex);
+		exit(0);
 	}
 }
 
 // Function for philosopher to eat
 void	eat(Philosopher *philosopher)
 {
-	print_with_timestamp(philosopher->philosopher_id, "is eating");
-	usleep(philosopher->time_to_eat * 1000);
-	gettimeofday(&philosopher->last_meal_time, NULL);
+	if (philosopher_died == false)
+	{
+		print_with_timestamp(philosopher->philosopher_id, "is eating");
+		usleep(philosopher->time_to_eat * 1000);
+		gettimeofday(&philosopher->last_meal_time, NULL);
+	}
 }
 
 // Function for philosopher to sleep
 void	sleep_philosopher(Philosopher *philosopher)
 {
-	print_with_timestamp(philosopher->philosopher_id, "is sleeping");
-	usleep(philosopher->time_to_sleep * 1000);
+	if (philosopher_died == false)
+	{
+		print_with_timestamp(philosopher->philosopher_id, "is sleeping");
+		usleep(philosopher->time_to_sleep * 1000);
+	}
 }
 
 // Function for philosopher to think
 void	think(Philosopher *philosopher)
 {
-	print_with_timestamp(philosopher->philosopher_id, "is thinking");
+	if (philosopher_died == false)
+	{
+		print_with_timestamp(philosopher->philosopher_id, "is thinking");
+	}
 }
 
 // Function for philosopher to die
 void	die(Philosopher *philosopher)
 {
+	pthread_mutex_lock(philosopher->dead);
 	philosopher_died = true;
 	print_with_timestamp(philosopher->philosopher_id, "is dead");
-	exit(0);
+	pthread_mutex_unlock(philosopher->dead);
 }
 
 // Philosopher thread function
@@ -104,11 +115,13 @@ void	*philosopher_thread(void *arg)
 	{
 		// Try to pick up left fork
 		pthread_mutex_lock(philosopher->left_fork);
-		print_with_timestamp(philosopher->philosopher_id, "has taken a fork");
+		if(!philosopher_died)
+			print_with_timestamp(philosopher->philosopher_id, "has taken a fork");
 		// Try to pick up right fork
 		if (pthread_mutex_trylock(philosopher->right_fork) == 0)
 		{
-			print_with_timestamp(philosopher->philosopher_id,
+			if(!philosopher_died)
+				print_with_timestamp(philosopher->philosopher_id,
 				"has taken a fork");
 			// Start eating
 			eat(philosopher);
@@ -131,9 +144,7 @@ void	*philosopher_thread(void *arg)
 			* 1000LL + (now.tv_usec - philosopher->last_meal_time.tv_usec)
 			/ 1000;
 		if (time_since_last_meal >= philosopher->time_to_die)
-		{
 			die(philosopher);
-		}
 		// Think after sleeping
 		think(philosopher);
 	}
@@ -162,9 +173,11 @@ int	main(int argc, char *argv[])
 
 	// Initialize mutexes for forks
 	pthread_mutex_t fork_mutexes[num_philosophers];
+	pthread_mutex_t dead_mutexes[num_philosophers];
 	for (int i = 0; i < num_philosophers; i++)
 	{
 		pthread_mutex_init(&fork_mutexes[i], NULL);
+		pthread_mutex_init(&dead_mutexes[i], NULL);
 	}
 
 	// Create philosopher threads
@@ -174,6 +187,7 @@ int	main(int argc, char *argv[])
 		philosophers[i].philosopher_id = i + 1;
 		philosophers[i].left_fork = &fork_mutexes[i];
 		philosophers[i].right_fork = &fork_mutexes[(i + 1) % num_philosophers];
+		philosophers[i].dead = &dead_mutexes[i];
 		philosophers[i].time_to_die = time_to_die;
 		philosophers[i].time_to_eat = time_to_eat;
 		philosophers[i].time_to_sleep = time_to_sleep;

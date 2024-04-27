@@ -2,9 +2,9 @@ NAME = philosophers
 CC =  gcc -pthread
 FLAGS = -Wall -Wextra -Werror
 BIN = ./bin/
-HEADERS = -I philosophers.h -I ./libft
+HEADERS = -I /philosophers.h -I ./libft
 LIB = ./libft/libft.a
-SRCS = $(addprefix ./src/, philo.c)
+SRCS = $(addprefix ./src/, main.c utils.c parsing.c init.c dinner.c)
 OBJS = $(patsubst ./src/%.c, $(BIN)%.o, $(SRCS))
 
 all: libft/libft.a $(BIN) $(NAME)
