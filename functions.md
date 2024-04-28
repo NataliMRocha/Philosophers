@@ -18,9 +18,9 @@ pthread_mutex_lock: Bloqueia um mutex para acesso exclusivo. Exemplo: pthread_mu
 
 pthread_mutex_unlock: Libera um mutex previamente bloqueado. Exemplo: pthread_mutex_unlock(&mutex);
 
-Quando detached, recursos de uma thread são liberados imediatamente
-em sua conclusão e pthread_join não pode ser usado para sincronização (espera pelo fim).
-• pthread_detach() permite ajustar estado para detached em tempo de execução.
+pthread_detach() permite ajustar estado para detached em tempo de execução.
+Quando detached, recursos de uma thread são liberados imediatamente em sua conclusão e 
+pthread_join não pode ser usado para sincronização (espera pelo fim).
 
 # Threads
 

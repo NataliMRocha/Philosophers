@@ -1,52 +1,52 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_set.c                                          :+:      :+:    :+:   */
+/*   check_threads.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: natali <natali@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/27 17:52:05 by namoreir          #+#    #+#             */
-/*   Updated: 2024/04/28 17:52:04 by natali           ###   ########.fr       */
+/*   Created: 2024/04/28 15:48:09 by natali            #+#    #+#             */
+/*   Updated: 2024/04/28 17:57:26 by natali           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../philosophers.h"
 
-void	set_bool(t_mtx *mutex, bool *dst, bool value)
+void	increase_long(t_mtx *mutex, long *value)
 {
 	mutex_handle(mutex, LOCK);
-	*dst = value;
+	(*value)++;
 	mutex_handle(mutex, UNLOCK);
 }
 
-void	set_long(t_mtx *mutex, long *dest, long value)
-{
-	mutex_handle(mutex, LOCK);
-	*dest = value;
-	mutex_handle(mutex, UNLOCK);
-}
-
-bool	get_bool(t_mtx *mutex, bool *value)
+bool	all_threads_running(t_mtx *mutex, long *threads, long philo_nbr)
 {
 	bool	ret;
 
+	ret = false;
 	mutex_handle(mutex, LOCK);
-	ret = *value;
+	if (*threads == philo_nbr)
+		ret = true;
 	mutex_handle(mutex, UNLOCK);
 	return (ret);
 }
 
-long	get_long(t_mtx *mutex, long *value)
+void	unsync(t_philo *philo)
 {
-	long	ret;
-
-	mutex_handle(mutex, LOCK);
-	ret = *value;
-	mutex_handle(mutex, UNLOCK);
-	return (ret);
+	if (philo->table->nb_philos % 2 == 0)
+	{
+		if (philo->id % 2 == 0)
+			precise_usleep(3e4, philo->table);
+	}
+	else
+	{
+		if (philo->id % 2)
+			thinking(philo, true);
+	}
 }
 
-bool	end_simulation(t_table *table)
+void	wait_all_threads(t_table *table)
 {
-	return (get_bool(&table->table_mutex, &table->end_simulation));
+	while (!get_bool(&table->table_mutex, &table->all_thr_ready))
+		;
 }
