@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   validate_and_parse.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: natali <natali@student.42.fr>              +#+  +:+       +#+        */
+/*   By: namoreir <namoreir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/27 14:22:04 by namoreir          #+#    #+#             */
-/*   Updated: 2024/04/28 18:31:26 by natali           ###   ########.fr       */
+/*   Updated: 2024/04/29 11:41:29 by namoreir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,10 +40,10 @@ int	validation(char *argv)
 int	check_args(int argc, char **argv)
 {
 	long long int	arg;
-	int	i;
+	int				i;
 
 	if (argc < 5)
-		return (print_error("Usage: philos time_to_die time_to_eat" 
+		return (print_error("Usage: philos time_to_die time_to_eat"
 				"time_to_sleep (optional)must_eat"));
 	if (argc > 6)
 		return (print_error("Too many arguments"));
