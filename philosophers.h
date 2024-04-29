@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philosophers.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: natali <natali@student.42.fr>              +#+  +:+       +#+        */
+/*   By: namoreir <namoreir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/24 15:16:35 by namoreir          #+#    #+#             */
-/*   Updated: 2024/04/28 17:53:26 by natali           ###   ########.fr       */
+/*   Updated: 2024/04/29 12:19:41 by namoreir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,6 @@
 # endif
 
 // COLORS
-/*
-	\033[ starts the escape sequence.
-	31 are the color code.
-	m marks the end of the color sequence.
-	\033[0m resets the text style back to default.
-*/
-
 # define RST "\033[0m"
 # define RED "\033[0;31m"
 # define W "\033[0;37m"
@@ -129,7 +122,6 @@ void					thread_handle(pthread_t *thread, void *(*foo)(void *),
 							void *data, t_opcode op);
 // INIT FUNCTIONS
 void					init_table(t_table *table);
-
 // DINNER
 void					*one_philo(void *arg);
 void					thinking(t_philo *philo, bool pre_simulation);
@@ -142,7 +134,6 @@ bool					all_threads_running(t_mtx *mutex, long *threads,
 							long philo_nbr);
 void					unsync(t_philo *philo);
 void					wait_all_threads(t_table *table);
-
 // UTILS
 long					get_time(int time_code);
 int						print_error(char *msg);
